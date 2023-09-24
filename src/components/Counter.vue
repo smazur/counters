@@ -11,10 +11,6 @@ export default defineComponent({
     }
   },
 
-  mounted() {
-    this.$refs.title.focus();
-  },
-
   watch: {
     count() {
       this.myCount = this.count;
@@ -30,6 +26,10 @@ export default defineComponent({
   },
 
   methods: {
+    focusTitle() {
+      this.$refs.title.focus();
+    },
+
     inc() {
       if( this.myCount === '' || this.myCount === undefined ) {
         this.myCount = 0;
@@ -58,7 +58,7 @@ export default defineComponent({
 <div class="ct">
   <input type="text" class="ct-title" v-model="myTitle" ref="title" placeholder="New counter">
   <div class="ct-val">
-    {{ myCount }}
+    <input type="number" v-model="myCount">
   </div>
   <a href="#" @click.prevent="dec()" class="ct-btn-tool"><i class="fa-solid fa-minus"></i></a>
   <a href="#" @click.prevent="inc()" class="ct-btn-tool"><i class="fa-solid fa-plus"></i></a>
@@ -74,14 +74,35 @@ export default defineComponent({
   align-items: center;
   text-align: left;
 }
-
 .ct-val {
+  min-width: 60px;
+  max-width: 60px;
+  width: 60px;
+}
+
+.ct-val>input {
   font-size: 16px;
-  line-height: 1;
-  padding: 8px 8px;
+  line-height: 22px;
+  padding: 10px 0;
   text-align: center;
-  min-width: 32px;
-  height: 32px;
+  width: 100%;
+  background-color: #F5F5F5;
+  border: none;
+}
+.ct-val>input:focus {
+  outline: none;
+  background-color: #DDD;
+}
+
+.ct-val>input::-webkit-outer-spin-button,
+.ct-val>input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.ct-val>input[type=number] {
+  -moz-appearance: textfield;
 }
 
 .ct-title {

@@ -21,3 +21,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+/.firebase/hosting.ZGlzdA.cache
+/.vscode/extensions.json
+/firebase.json
+/.firebaserc
+/dist/assets/index-6c504fc3.js
+/dist/assets/index-073ea896.css
+/dist/index.html
+/dist/vite.svg

@@ -3,7 +3,11 @@ import _ from 'lodash';
 
 export default {
   name: "Datepicker",
-  props: ['modelValue', 'start_date', 'end_date', 'view_date'],
+
+  props: ['modelValue', 'start_date', 'end_date', 'view_date',
+    'isHighlight', 'isMonthHighlight', 'isYearHighlight'
+  ],
+
   data() {
     var val = '';
 
@@ -63,6 +67,10 @@ export default {
           year.class.push( 'today' );
         }
 
+        if( _.isFunction( this.isYearHighlight ) && this.isYearHighlight( year.date ) ) {
+          year.class.push('hl');
+        }
+
         res.push(year);
       }
 
@@ -87,6 +95,10 @@ export default {
 
         if( mon.date.getFullYear() === today.getFullYear() && mon.date.getMonth() === today.getMonth() ) {
           mon.class.push('today');
+        }
+
+        if( _.isFunction( this.isMonthHighlight ) && this.isMonthHighlight( mon.date ) ) {
+          mon.class.push( 'hl' );
         }
 
         res.push(mon);
@@ -117,6 +129,10 @@ export default {
           class: ['opt', 'day'],
         };
 
+        if( _.isFunction( this.isHighlight ) && this.isHighlight( now ) ) {
+          day.class.push( 'hl' );
+        }
+
         if( now.getMonth() < this.viewMonth ) {
           day.class.push('prev');
         } else if( now.getMonth() > this.viewMonth ) {
@@ -125,10 +141,6 @@ export default {
 
         if( now.getFullYear() === this.myYear && now.getMonth() === this.myMonth && now.getDate() === this.myDate ) {
           day.class.push('selected');
-        }
-
-        if( !this.isDateEnabled( now ) ) {
-          day.class.push('disabled');
         }
 
         if( now.getFullYear() === today.getFullYear() && now.getMonth() === today.getMonth() && now.getDate() === today.getDate() ) {
@@ -257,10 +269,6 @@ export default {
     },
 
     setDate( date ) {
-      if( !this.isDateEnabled( date ) ) {
-        return;
-      }
-
       this.viewMode = 'days';
 
       this.myYear  = this.viewYear  = date.getFullYear();
@@ -294,38 +302,6 @@ export default {
       this.myYear  = this.viewYear = date.getFullYear();
       this.myMonth = '';
       this.myDate  = '';
-    },
-
-    compareDates( date1, date2 ) {
-      var y1 = date1.getFullYear(), y2 = date2.getFullYear();
-      var m1 = date1.getMonth(), m2 = date2.getMonth();
-      var d1 = date1.getDate(), d2 = date2.getDate();
-
-      if( y1 !== y2 ) {
-        return y1 > y2 ? 1 : -1;
-      }
-
-      if( m1 !== m2 ) {
-        return m1 > m2 ? 1 : -1;
-      }
-
-      if( d1 !== d2 ) {
-        return d1 > d2 ? 1 : -1;
-      }
-
-      return 0;
-    },
-
-    isDateEnabled( date ) {
-      if( this.minDate && this.compareDates(date, this.minDate) < 0 ) {
-        return false;
-      }
-
-      if( this.maxDate && this.compareDates(date, this.maxDate) > 0 ) {
-        return false;
-      }
-
-      return true;
     }
   },
 }
@@ -333,13 +309,13 @@ export default {
 
 <template>
   <div class="ct-datepicker">
-    <div class="ct-datepicker-nav">
-      <a href="#" @click.prevent="toggleViewMode" class="title">{{ viewTitle }}</a>
-      <a href="#" @click.prevent="prevScreen" class="prev">
-        <svg class="icon fill" width="15" height="24"><path fill-rule="evenodd" d="M11.856.54l2.211 2.211-9.056 9.057 9.056 9.057-2.211 2.211L.588 11.808 11.856.54z"/></svg>
+    <div class="ct-datepicker-nav fl-row fl-gap-1 ph-min">
+      <a href="#" @click.prevent="toggleViewMode()" class="fl-grow ct-btn-tool" style="text-align: left">{{ viewTitle }}</a>
+      <a href="#" @click.prevent="prevScreen" class="ct-btn-tool">
+        <i class="fa-solid fa-chevron-left"></i>
       </a>
-      <a href="#" @click.prevent="nextScreen" class="next">
-        <svg class="icon fill ct-x-flip" width="15" height="24"><path fill-rule="evenodd" d="M11.856.54l2.211 2.211-9.056 9.057 9.056 9.057-2.211 2.211L.588 11.808 11.856.54z"/></svg>
+      <a href="#" @click.prevent="nextScreen" class="ct-btn-tool">
+        <i class="fa-solid fa-chevron-right"></i>
       </a>
     </div>
 
@@ -366,74 +342,5 @@ export default {
 </template>
 
 <style scoped>
-.ct-datepicker {
-  min-width: 300px;
-}
-
-.ct-datepicker .opt,
-.ct-datepicker .dow {
-  display: inline-block;
-  padding: 10px;
-  color: inherit;
-  cursor: pointer;
-  position: relative;
-  text-align: center;
-}
-
-.ct-datepicker .day,
-.ct-datepicker .dow {
-  width: 14.285714286%;
-}
-
-.ct-datepicker .mon,
-.ct-datepicker .year {
-  width: 25%;
-}
-
-.ct-datepicker .opt.selected {
-  color: #FFF;
-  background-color: #F00;
-  border-radius: 4px;
-}
-
-.ct-datepicker .opt.prev,
-.ct-datepicker .opt.next
-{
-  opacity: 0.4;
-}
-
-.ct-datepicker-nav {
-  display: flex;
-  flex-direction: row;
-  justify-content: stretch;
-  align-items: center;
-
-}
-
-.ct-datepicker-nav a {
-  color: inherit;
-  text-align: center;
-  padding: 10px 20px;
-  border-radius: 5px;
-  text-decoration: none;
-}
-
-.ct-datepicker-nav a:focus {
-  text-decoration: none;
-}
-
-.ct-datepicker-nav a:hover {
-  color: #F00;
-}
-
-.ct-datepicker-nav a.prev,
-.ct-datepicker-nav a.next {
-  flex: 0 0 auto;
-}
-
-.ct-datepicker-nav a.title {
-  flex: 1 0 auto;
-  text-align: left;
-}
 
 </style>
