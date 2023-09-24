@@ -16,6 +16,8 @@ export default {
       myViewYear: vd.getFullYear(),
       myViewMonth: vd.getMonth(),
       viewMode: 'days',
+      datesMode: 'all',
+      showBlankDates: false,
     };
   },
 
@@ -69,7 +71,7 @@ export default {
           }
         }
 
-        if( !stats ) {
+        if( !stats && !this.showBlankDates ) {
           continue;
         }
 
@@ -137,7 +139,7 @@ export default {
           }
         }
 
-        if( !stats ) {
+        if( !stats && !this.showBlankDates ) {
           continue;
         }
 
@@ -195,7 +197,7 @@ export default {
           }
         }
 
-        if( !stats ) {
+        if( !stats && !this.showBlankDates ) {
           continue;
         }
 
@@ -403,6 +405,10 @@ export default {
           {{ viewTitle }}
         </div>
         <div class="x-gap-1">
+          <a href="#" class="ct-btn-tool" @click.prevent="showBlankDates = !showBlankDates" >
+            <i v-if="showBlankDates" class="fa-solid fa-circle"></i>
+            <i v-else class="fa-solid fa-circle-half-stroke"></i>
+          </a>
           <a href="#" class="ct-btn-tool" @click.prevent="prevScreen()"><i class="fa-solid fa-chevron-left"></i></a>
           <a href="#" class="ct-btn-tool" @click.prevent="nextScreen()"><i class="fa-solid fa-chevron-right"></i></a>
         </div>
