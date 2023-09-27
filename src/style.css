@@ -414,7 +414,7 @@ input[type=text]:focus {
   >li>a {
     display: block;
     text-decoration: none;
-    padding: 5px 10px;
+    padding: 10px;
     color: var(--menu-fg);
     background-color: var(--menu-bg);
     white-space: nowrap;
@@ -481,7 +481,7 @@ input[type=text]:focus {
   text-align: left;
   border-collapse: collapse;
 }
-.ct-table tr:nth-child(even) {
+.ct-table.ct-table-striped tr:nth-child(even) {
   background-color: #EEE;
 }
 .ct-table th,
@@ -558,4 +558,20 @@ input[type=text]:focus {
 .ct-datepicker-nav a.title {
   flex: 1 0 auto;
   text-align: left;
+}
+
+select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  background-color: #FFF;
+  border-radius: 4px;
+}
+
+select:focus {
+  outline: none;
+}
+
+.ct-selected {
+  color: #646cff;
 }

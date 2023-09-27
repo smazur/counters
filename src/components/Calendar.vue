@@ -94,7 +94,7 @@ export default {
 
     enumMonths() {
       var today = new Date();
-      var months = this.allMon;
+      var months = this.allMonths;
       let res = [];
       let cids = this.cids;
 
@@ -239,24 +239,6 @@ export default {
       return '';
     },
 
-    viewSum() {
-      let sum;
-
-      if( this.viewMode === 'days' ) {
-        let days = this.enumDays;
-
-        _.map( days, ( x ) => {
-          if( x.stats ) {
-            if( sum === undefined ) {
-              sum = 0;
-            }
-            sum += x.stats.sum;
-          }
-        });
-      }
-
-      return sum;
-    },
     viewStats() {
       let sum = 0, count = 0, items;
 
@@ -287,35 +269,20 @@ export default {
     },
 
     allMonths() {
-      return ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    },
-
-    allMon() {
-      return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    },
-
-    enumDows() {
-      return ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-    },
-
-    minDate() {
-      if( _.isDate( this.start_date ) ) {
-        return this.start_date;
-      } else if( _.isString( this.start_date ) && this.start_date.match(/^\d+-\d+-\d+$/) ) {
-        return new Date( this.start_date );
-      }
-
-      return null;
-    },
-
-    maxDate() {
-      if( _.isDate( this.end_date ) ) {
-        return this.end_date;
-      } else if( _.isString( this.end_date ) && this.end_date.match(/^\d+-\d+-\d+$/) ) {
-        return new Date( this.end_date );
-      }
-
-      return null;
+      return [
+        this.$tr( 'January' ) || 'January',
+        this.$tr( 'February' ) || 'February',
+        this.$tr( 'March' ) || 'March',
+        this.$tr( 'April' ) || 'April',
+        this.$tr( 'May' ) || 'May',
+        this.$tr( 'June' ) || 'June',
+        this.$tr( 'July' ) || 'July',
+        this.$tr( 'August' ) || 'August',
+        this.$tr( 'September' ) || 'September',
+        this.$tr( 'October' ) || 'October',
+        this.$tr( 'November' ) || 'November',
+        this.$tr( 'December' ) || 'December'
+      ];
     },
   },
 
@@ -364,14 +331,6 @@ export default {
       }
     },
 
-    toggleLayoutMode() {
-      if( this.layoutMode === 'list' ) {
-        this.layoutMode = 'grid';
-      } else {
-        this.layoutMode = 'list';
-      }
-    },
-
     setMonth( date ) {
       this.viewMode = 'days';
 
@@ -417,7 +376,7 @@ export default {
 
     <div class="fl-grow-scroll-y">
       <ul v-if="viewMode === 'days'" class="ct-calendar-days">
-        <li v-if="enumDays.length === 0" class="ct-disabled">No data</li>
+        <li v-if="enumDays.length === 0" class="ct-disabled">{{ $tr( 'noData' ) || 'No data' }}</li>
         <li v-for="day in enumDays" :class="day.class">
           <div class="fl-row fl-gap-1 fl-between fl-al-center">
             <div class="title">{{ day.title }}</div>
@@ -430,7 +389,7 @@ export default {
       </ul>
 
       <ul v-if="viewMode === 'months'" class="ct-calendar-months">
-        <li v-if="enumMonths.length === 0" class="ct-disabled">No data</li>
+        <li v-if="enumMonths.length === 0" class="ct-disabled">{{ $tr( 'noData' ) || 'No data' }}</li>
         <li v-for="mon in enumMonths" :class="mon.class" @click.prevent="setMonth(mon.date)">
           <div class="fl-row fl-gap-1 fl-between fl-al-center">
             <div class="title">{{ mon.title }}</div>
@@ -443,7 +402,7 @@ export default {
       </ul>
 
       <ul v-if="viewMode === 'years'" class="ct-calendar-years">
-        <li v-if="enumYears.length === 0" class="ct-disabled">No data</li>
+        <li v-if="enumYears.length === 0" class="ct-disabled">{{ $tr( 'noData' ) || 'No data' }}</li>
         <li v-for="year in enumYears" :class="year.class" @click.prevent="setYear( year.date )">
           <div class="fl-row fl-gap-1 fl-between fl-al-center">
             <div class="title">{{ year.title }}</div>
@@ -462,7 +421,7 @@ export default {
         <span>{{ viewStats.sum }}</span>
         <span>{{ viewStats.avg }}</span>
       </span>
-      <span v-else class="ct-disabled">N/A</span>
+      <span v-else class="ct-disabled">{{ $tr( 'na' ) || 'N/A' }}</span>
     </div>
   </div>
 </template>

@@ -19,9 +19,11 @@ export default {
     return {
       groupMenuOpen: null,
       prompt: null,
+      promptOptions: null,
       confirm: null,
       counterMenu: null,
       calendarOpen: false,
+      settingsOpen: false,
       datepickerOpen: false,
       isStateLoading: false,
       state: {
@@ -282,7 +284,7 @@ export default {
 
     addGroup() {
       this.openPrompt({
-        message: 'Enter group name:',
+        message: this.$tr( 'enter_group' ) || 'Enter group name:',
       }, ( value ) => {
         let title = (value || '').trim();
 
@@ -395,6 +397,35 @@ export default {
       this.prompt = null;
     },
 
+    openPromptOptions( params, cb ) {
+      this.promptOptions = _.extend({
+        callback: cb
+      }, params );
+    },
+
+    closePromptOptions( selection ) {
+      if( !this.promptOptions ) {
+        return;
+      }
+
+      if( this.promptOptions.callback ) {
+        this.promptOptions.callback.call( this, selection ? selection.value : undefined, selection );
+      }
+
+      this.promptOptions = null;
+    },
+
+    openPromptLangOptions() {
+      this.openPromptOptions({
+        value: this.$lang,
+        options: this.$langOptions,
+      }, ( lang ) => {
+        if( lang ) {
+          this.$useLang( lang, true );
+        }
+      })
+    },
+
     openConfirm(opts, ycb, ncb ) {
       this.confirm = _.extend({ message: '', yesTitle: 'Ok', noTitle: 'Cancel', ycb: ycb, ncb: ncb }, opts );
     },
@@ -419,7 +450,7 @@ export default {
       }
 
       this.openPrompt({
-        message: 'Enter new title:',
+        message: this.$tr( 'enter_new_title' ) || 'Enter new title:',
         value: this.state.groups[groupId].title,
       }, ( res ) => {
         let title = ( res || '' ).trim();
@@ -595,6 +626,7 @@ export default {
           <span v-if="groupStats[activeGroup.id].count > 1">{{ groupStats[activeGroup.id].avg }}</span>
         </span>
         <a href="#" class="ct-btn-tool" @click.prevent="calendarOpen = true"><i class="fa-regular fa-calendar-days"></i></a>
+        <a href="#" class="ct-btn-tool" @click.prevent="settingsOpen = true"><i class="fa-solid fa-gear"></i></a>
       </div>
     </template>
 
@@ -611,6 +643,13 @@ export default {
 
     <template v-slot:sidebar>
       <div class="fl-col h100">
+        <div>
+          <ul class="ct-menu">
+            <li>
+              <a href="#" @click.prevent="addGroup()">{{ $tr( 'addGroup' ) || 'Add group' }}</a>
+            </li>
+          </ul>
+        </div>
         <div class="fl-grow-scroll-y">
           <ul class="ct-menu">
             <li v-for="group in displayGroups" :key="group.id" :class="{'ct-active': state.activeGroupId === group.id}">
@@ -629,12 +668,6 @@ export default {
             </li>
           </ul>
         </div>
-        <div class="pv1 ph1">
-          <div class="ct-btn-group">
-            <button type="button" class="ct-btn" @click.prevent="addGroup()">Add group</button>
-            <button type="button" class="ct-btn" @click.prevent="wipeConfirm()">Wipe data</button>
-          </div>
-        </div>
       </div>
     </template>
 
@@ -648,11 +681,90 @@ export default {
     </div>
   </AppScreen>
 
+  <transition name="ct-fade">
+    <div v-if="counterMenu" class="ct-popup" @click.self="counterMenu = null">
+      <div class="ct-popup-body pv1">
+        <ul class="ct-menu">
+          <li>
+            <!--suppress JSObjectNullOrUndefined -->
+            <a href="#" @click.prevent="clearCounter(counterMenu.cid)">{{ $tr( 'clear' ) || 'Clear' }}</a>
+          </li>
+          <li><hr></li>
+          <li>
+            <a href="#" @click.prevent="deleteCounterConfirm(counterMenu.cid);">{{ $tr( 'delete' ) || 'Delete' }}</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </transition>
+
+  <transition name="ct-fade">
+    <div v-if="datepickerOpen" class="ct-popup" @click.self="datepickerOpen = false">
+      <div class="ct-popup-body ph1 pv1 y-gap-1">
+        <Datepicker :model-value="currentDate" @update:modelValue="setDate($event)" :is-highlight="getDateStatus" :is-month-highlight="getMonthStatus" :is-year-highlight="getYearStatus"></Datepicker>
+        <div style="text-align: center">
+          <a href="#" class="ct-btn-tool" @click.prevent="setDate(new Date())">{{ $tr( 'today' ) || 'Today' }}</a>
+        </div>
+      </div>
+    </div>
+  </transition>
+
+  <transition name="ct-fade">
+  <div v-if="activeGroup && calendarOpen" class="ct-popup" @click.self="calendarOpen = false">
+    <div class="ct-popup-body" style="height:500px;width:100%">
+      <Calendar :cids="activeGroup.counters" :view-date="currentDate"></Calendar>
+    </div>
+  </div>
+  </transition>
+
+  <transition name="ct-fade">
+    <div v-if="settingsOpen" class="ct-popup" @click.self="settingsOpen = false">
+      <div class="ct-popup-body" style="max-height:500px;height:500px;width:100%;overflow-y: auto">
+        <ul class="ct-menu">
+          <li>
+            <a href="#" @click.prevent="openPromptLangOptions()">
+              <div class="fl-row x-pad-1">
+                <div class="fl-grow">
+                  {{ $tr('Language') || 'Language'}}
+                </div>
+                <div class="ct-selected">{{ $activeLang.value ? $activeLang.value.title : '' }}</div>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="#" @click.prevent="wipeConfirm()">{{ $tr('wipeData') || 'Wipe data' }}</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </transition>
+
   <transition name="ct-fade" @enter="$refs.prompt.focus()">
     <div v-if="prompt" class="ct-popup" @click.self="closePrompt()">
       <div class="ct-popup-body ph1 pv1">
         <div v-if="prompt.message">{{ prompt.message }}</div>
         <input type="text" class="w100" v-model="prompt.value" :placeholder="prompt.placeholder || ''" @keydown.enter.prevent="closePrompt(this.prompt.value)" @keydown.esc.prevent="closePrompt()" ref="prompt">
+      </div>
+    </div>
+  </transition>
+
+  <transition name="ct-fade">
+    <div v-if="promptOptions" class="ct-popup" @click.self="closePromptOptions()">
+      <div class="ct-popup-body" style="max-height:500px;overflow-y: auto">
+        <ul class="ct-menu">
+          <li v-for="opt in promptOptions.options">
+            <a href="#" @click.prevent="closePromptOptions(opt)">
+              <div class="fl-row">
+                <div class="fl-grow">
+                  {{ opt.title }}
+                </div>
+                <div v-if="promptOptions.value === opt.value" class="ct-selected">
+                  <i class="fa-solid fa-check"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+        </ul>
       </div>
     </div>
   </transition>
@@ -673,41 +785,7 @@ export default {
     </div>
   </transition>
 
-  <transition name="ct-fade">
-    <div v-if="counterMenu" class="ct-popup" @click.self="counterMenu = null">
-      <div class="ct-popup-body pv1">
-        <ul class="ct-menu">
-          <li>
-            <!--suppress JSObjectNullOrUndefined -->
-            <a href="#" @click.prevent="clearCounter(counterMenu.cid)">Clear</a>
-          </li>
-          <li><hr></li>
-          <li>
-            <a href="#" @click.prevent="deleteCounterConfirm(counterMenu.cid);">Delete</a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </transition>
 
-  <transition name="ct-fade">
-    <div v-if="datepickerOpen" class="ct-popup" @click.self="datepickerOpen = false">
-      <div class="ct-popup-body ph1 pv1 y-gap-1">
-        <Datepicker :model-value="currentDate" @update:modelValue="setDate($event)" :is-highlight="getDateStatus" :is-month-highlight="getMonthStatus" :is-year-highlight="getYearStatus"></Datepicker>
-        <div style="text-align: center">
-          <a href="#" class="ct-btn-tool" @click.prevent="setDate(new Date())">Today</a>
-        </div>
-      </div>
-    </div>
-  </transition>
-
-  <transition name="ct-fade">
-  <div v-if="activeGroup && calendarOpen" class="ct-popup" @click.self="calendarOpen = false">
-    <div class="ct-popup-body" style="height:500px;width:100%">
-      <Calendar :cids="activeGroup.counters" :view-date="currentDate"></Calendar>
-    </div>
-  </div>
-  </transition>
 </template>
 
 <style scoped>

@@ -175,35 +175,49 @@ export default {
     },
 
     allMonths() {
-      return ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      return [
+        this.$tr( 'January' ) || 'January',
+        this.$tr( 'February' ) || 'February',
+        this.$tr( 'March' ) || 'March',
+        this.$tr( 'April' ) || 'April',
+        this.$tr( 'May' ) || 'May',
+        this.$tr( 'June' ) || 'June',
+        this.$tr( 'July' ) || 'July',
+        this.$tr( 'August' ) || 'August',
+        this.$tr( 'September' ) || 'September',
+        this.$tr( 'October' ) || 'October',
+        this.$tr( 'November' ) || 'November',
+        this.$tr( 'December' ) || 'December'
+      ];
     },
 
     allMon() {
-      return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return [
+        this.$tr( 'Jan' ) || 'Jan',
+        this.$tr( 'Feb' ) || 'Feb',
+        this.$tr( 'Mar' ) || 'Mar',
+        this.$tr( 'Apr' ) || 'Apr',
+        this.$tr( 'May' ) || 'May',
+        this.$tr( 'Jun' ) || 'Jun',
+        this.$tr( 'Jul' ) || 'Jul',
+        this.$tr( 'Aug' ) || 'Aug',
+        this.$tr( 'Sep' ) || 'Sep',
+        this.$tr( 'Oct' ) || 'Oct',
+        this.$tr( 'Nov' ) || 'Nov',
+        this.$tr( 'Dec' ) || 'Dec'
+      ];
     },
 
     enumDows() {
-      return ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-    },
-
-    minDate() {
-      if( _.isDate( this.start_date ) ) {
-        return this.start_date;
-      } else if( _.isString( this.start_date ) && this.start_date.match(/^\d+-\d+-\d+$/) ) {
-        return new Date( this.start_date );
-      }
-
-      return null;
-    },
-
-    maxDate() {
-      if( _.isDate( this.end_date ) ) {
-        return this.end_date;
-      } else if( _.isString( this.end_date ) && this.end_date.match(/^\d+-\d+-\d+$/) ) {
-        return new Date( this.end_date );
-      }
-
-      return null;
+      return [
+        this.$tr( 'Su' ) || 'Su',
+        this.$tr( 'Mo' ) || 'Mo',
+        this.$tr( 'Tu' ) || 'Tu',
+        this.$tr( 'We' ) || 'We',
+        this.$tr( 'Th' ) || 'Th',
+        this.$tr( 'Fr' ) || 'Fr',
+        this.$tr( 'Sa' ) || 'Sa'
+      ];
     },
   },
 
